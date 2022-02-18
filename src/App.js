@@ -1,25 +1,38 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import firebase from './firebase';
 
-function App() {
+import DataTable from './DataTable';
+
+const App = () => {
+  const [numbers, setNumbers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const ref = firebase.firestore().collection('demo-data');
+
+  function getData() {
+    setLoading(true);
+    ref.onSnapshot(querySnapshot => {
+      const items = [];
+      querySnapshot.forEach(doc => {
+        items.push(doc.data());
+      });
+      setNumbers(items);
+      setLoading(false);
+    });
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  if (loading) return 'Loading...';
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1 style={{ textAlign: 'center' }}>Demo App</h1>  
+        <DataTable numbers={numbers} />
     </div>
-  );
+  )
 }
 
 export default App;
